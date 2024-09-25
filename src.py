@@ -7,6 +7,7 @@ pygame.font.init()
 calibri18 = pygame.font.SysFont('calibri', 18, True)
 calibri18.set_underline(True)
 calibri16 = pygame.font.SysFont('calibri', 16, True)
+impact = pygame.font.SysFont('impact', 30)
 
 BACKGROUND = [37, 37, 37]
 BAR = [0, 143, 148]
@@ -19,26 +20,29 @@ delay_time = 20 # 0 = instant, 10 = fast, 20 = normal, 30 = slow, 40 = very slow
 color_index = [BAR for _ in range(arr_size)]
 line_width = (1200 - (arr_size - 1) * 5 - 5) // arr_size
 circle_pos = (((20, 540),
-          (20, 565), 
-          (20, 590), 
-          (20, 615), 
-          (20, 640)),
+               (20, 565), 
+               (20, 590), 
+               (20, 615), 
+               (20, 640)),
 
-         ((200, 540),
-          (200, 565),
-          (200, 590),
-          (200, 615),
-          (200, 640)),
+              ((200, 540),
+               (200, 565),
+               (200, 590),
+               (200, 615),
+               (200, 640)),
 
-         ((380, 540), 
-          (380, 565), 
-          (380, 590), 
-          (380, 615),
-          (380, 640)))
+              ((380, 540), 
+               (380, 565), 
+               (380, 590), 
+               (380, 615),
+               (380, 640)))
 
 circle_val = ((100, 80, 40, 20, 10), 
               (0, 10, 20, 30, 40), 
               (0, 1, 2, 3, 4))
+
+start_rect = pygame.Rect(620, 550, 180, 60)
+refresh_rect = pygame.Rect(900, 550, 200, 60)
 
 screen = pygame.display.set_mode((1200, 650))
 pygame.display.set_caption('Sorting Algorithm Visualizer')
@@ -53,7 +57,7 @@ def draw_bars(arr:list):
     for index, element in enumerate(arr):
         element = pygame.Rect(0, 0, line_width, element)
         element.bottomleft = (x, 500)
-        pygame.draw.rect(screen, color_index[index], element)
+        pygame.draw.rect(screen, color_index[index], element, border_top_left_radius = 3,border_top_right_radius = 3)
         x += line_width + 5
     pygame.display.update((0, 0, 1200, 500))
 
@@ -110,6 +114,35 @@ def mark_circle(marked_pos):
                     #     pass
     pygame.display.update()
 
+def draw_buttons(mouse_pos = (0, 0)):
+    if start_rect.collidepoint(mouse_pos):
+        pygame.draw.rect(screen, (226, 62, 87), start_rect, border_radius = 4)
+    else:
+        pygame.draw.rect(screen, (170, 48, 78), start_rect, border_radius = 4)
+    screen.blit(impact.render("Start", True, (200, 200, 200)), (680, 560))
+    screen.blit(calibri16.render("or press s", False, (200, 200, 200)), (670, 615))
+
+    if refresh_rect.collidepoint(mouse_pos):
+        pygame.draw.rect(screen, (100, 190, 80), refresh_rect, border_radius = 4)
+    else:
+        pygame.draw.rect(screen, (95, 141, 78), refresh_rect, border_radius = 4)
+    screen.blit(impact.render("Refresh", True, (200, 200, 200)), (950, 560))
+    screen.blit(calibri16.render("or press r", False, (200, 200, 200)), (940, 615))
+
+    pygame.display.update([(620, 550, 180, 110), (900, 550, 200, 110)])
+
+def push_buttons(mouse_pos):
+    if start_rect.collidepoint(mouse_pos):
+        pygame.draw.rect(screen, (150, 30, 50), start_rect, border_radius = 4)
+        screen.blit(impact.render("Start", True, (200, 200, 200)), (680, 560))
+        pygame.display.update(start_rect)
+        bubblesort(arr)
+    elif refresh_rect.collidepoint(mouse_pos):
+        pygame.draw.rect(screen, (70, 120, 50), refresh_rect, border_radius = 4)
+        screen.blit(impact.render("Refresh", True, (200, 200, 200)), (950, 560))
+        pygame.display.update(refresh_rect)
+        refresh()
+
 def refresh():
     global color_index, arr, line_width
     arr = [random.randint(10, 500) for _ in range(arr_size)]
@@ -136,19 +169,21 @@ def bubblesort(arr:list):
 
 draw_bars(arr)
 draw_circles()
+draw_buttons()
+
 running = True
 while running:
     for event in pygame.event.get():
         if event.type == pygame.WINDOWCLOSE:
             running = False
-        elif event.type == pygame.KEYDOWN:         # Event(768-KeyDown {'unicode': 's', 'key': 115, 'mod': 0, 'scancode': 22, 'window': None})
+        elif event.type == pygame.MOUSEMOTION:
+            draw_buttons(event.dict.get('pos'))
+        elif event.type == pygame.KEYDOWN:
             if event.dict['key'] == pygame.K_s:
                 bubblesort(arr)
             elif event.dict['key'] == pygame.K_r:
                 refresh()
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            # if option:
-            #     pass
+            push_buttons(event.dict['pos'])
             mark_circle(event.dict['pos'])
-            print(arr_size, delay_time)
 pygame.quit()
