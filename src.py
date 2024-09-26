@@ -16,7 +16,8 @@ COMPLETED_BAR = [57, 255, 20]
 
 arr_size = 40 # default, 100 = huge, 80 = big, 40 = medium, 20 = small, 10 = very small
 delay_time = 20 # 0 = instant, 10 = fast, 20 = normal, 30 = slow, 40 = very slow
-# 0 = Bubble Sort, 1 = Selection Sort, 2 = Quick Sort, 3 = Merge Sort, 4 = Heap Sort
+algorithm = 0 # 0 = Bubble Sort, 1 = Selection Sort, 2 = Quick Sort, 3 = Merge Sort, 4 = Heap Sort
+
 color_index = [BAR for _ in range(arr_size)]
 line_width = (1200 - (arr_size - 1) * 5 - 5) // arr_size
 circle_pos = (((20, 540),
@@ -87,15 +88,15 @@ def draw_circles():
     screen.blit(calibri16.render("Very Slow", True, (240, 240, 240)), (215, 632))
 
     screen.blit(calibri16.render("Bubble Sort", True, (240, 240, 240)), (395, 532))
-    screen.blit(calibri16.render("Selection Sort", True, (240, 240, 240)), (395, 557))
+    screen.blit(calibri16.render("Merge Sort", True, (240, 240, 240)), (395, 557))
     screen.blit(calibri16.render("Quick Sort", True, (240, 240, 240)), (395, 582))
-    screen.blit(calibri16.render("Merge Sort", True, (240, 240, 240)), (395, 607))
+    screen.blit(calibri16.render("Selection Sort", True, (240, 240, 240)), (395, 607))
     screen.blit(calibri16.render("Heap Sort", True, (240, 240, 240)), (395, 632))
 
     pygame.display.update()
 
 def mark_circle(marked_pos):
-    global arr_size, delay_time
+    global arr_size, delay_time, algorithm
     if marked_pos:
         for index in range(3):
             for i, pos in enumerate(circle_pos[index]):
@@ -110,8 +111,11 @@ def mark_circle(marked_pos):
                         pygame.draw.circle(screen, (192, 192, 192), circle_pos[1][circle_val[1].index(delay_time)], 7)
                         delay_time = circle_val[index][i]
                         pygame.draw.circle(screen, (20, 20, 20), pos, 4)
-                    # else:
-                    #     pass
+                    elif index == 2:
+                        pygame.draw.circle(screen, (192, 192, 192), circle_pos[2][circle_val[2].index(algorithm)], 7)
+                        algorithm = circle_val[index][i]
+                        pygame.draw.circle(screen, (20, 20, 20), pos, 4)
+                        
     pygame.display.update()
 
 def draw_buttons(mouse_pos = (0, 0)):
@@ -136,7 +140,7 @@ def push_buttons(mouse_pos):
         pygame.draw.rect(screen, (150, 30, 50), start_rect, border_radius = 4)
         screen.blit(impact.render("Start", True, (200, 200, 200)), (680, 560))
         pygame.display.update(start_rect)
-        bubblesort(arr)
+        sort()
     elif refresh_rect.collidepoint(mouse_pos):
         pygame.draw.rect(screen, (70, 120, 50), refresh_rect, border_radius = 4)
         screen.blit(impact.render("Refresh", True, (200, 200, 200)), (950, 560))
@@ -144,10 +148,19 @@ def push_buttons(mouse_pos):
         refresh()
 
 def refresh():
-    global color_index, arr, line_width
+    global color_index, arr, line_width, arr_size
     arr = [random.randint(10, 500) for _ in range(arr_size)]
     line_width = (1200 - (arr_size - 1) * 5 - 5) // arr_size
     color_index = [BAR for _ in range(arr_size)]
+    draw_bars(arr)
+
+def sort():
+    if algorithm == 0:
+        bubblesort(arr)
+    elif algorithm == 1:
+        mergesort(arr, 0, arr_size - 1)
+    else:
+        pass
     draw_bars(arr)
 
 def bubblesort(arr:list):
@@ -158,6 +171,8 @@ def bubblesort(arr:list):
 
             color_index[j] = HIGHLIGHTED_BAR
             color_index[j + 1] = HIGHLIGHTED_BAR
+            
+            pygame.event.get()
             draw_bars(arr)
 
             pygame.time.delay(delay_time)
@@ -165,6 +180,52 @@ def bubblesort(arr:list):
             color_index[j] = BAR
             color_index[j + 1] = BAR
         color_index[i] = COMPLETED_BAR
+        pygame.event.get()
+        draw_bars(arr)
+
+def mergesort(arr : list, left, right):
+    if left < right:
+        mid = (left + right) // 2
+        mergesort(arr, left, mid)
+        mergesort(arr, mid + 1, right)
+        merge(arr, left, mid, right)
+
+def merge(arr : list, l, m, r):
+    for i in range(l, r + 1):
+        color_index[i] = HIGHLIGHTED_BAR
+    draw_bars(arr)
+
+    l_temp = arr[l : m + 1]
+    r_temp = arr[m + 1 : r + 1]
+
+    i = j = 0
+    k = l
+    while(i < len(l_temp) and j < len(r_temp)):
+        if l_temp[i] <= r_temp[j]:
+            arr[k] = l_temp[i]
+            i += 1
+            k += 1
+        else:
+            arr[k] = r_temp[j]
+            j += 1
+            k += 1
+        color_index[k - 1] = COMPLETED_BAR
+        pygame.time.delay(delay_time)
+        draw_bars(arr)
+
+    while(i < len(l_temp)):
+        arr[k] = l_temp[i]
+        i += 1
+        k += 1
+        color_index[k - 1] = COMPLETED_BAR
+        pygame.time.delay(delay_time)
+        draw_bars(arr)
+    while(j < len(r_temp)):
+        arr[k] = r_temp[j]
+        j += 1
+        k += 1
+        color_index[k - 1] = COMPLETED_BAR
+        pygame.time.delay(delay_time)
         draw_bars(arr)
 
 draw_bars(arr)
@@ -180,7 +241,7 @@ while running:
             draw_buttons(event.dict.get('pos'))
         elif event.type == pygame.KEYDOWN:
             if event.dict['key'] == pygame.K_s:
-                bubblesort(arr)
+                sort()
             elif event.dict['key'] == pygame.K_r:
                 refresh()
         elif event.type == pygame.MOUSEBUTTONDOWN:
