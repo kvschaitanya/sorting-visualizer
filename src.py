@@ -10,9 +10,10 @@ calibri16 = pygame.font.SysFont('calibri', 16, True)
 impact = pygame.font.SysFont('impact', 30)
 
 BACKGROUND = [37, 37, 37]
-BAR = [0, 143, 148]
+BAR = [0, 133, 138]
 HIGHLIGHTED_BAR = [105, 48, 195]
 COMPLETED_BAR = [57, 255, 20]
+WORKING_PORTION = [100, 223, 228]
 
 arr_size = 40 # default, 100 = huge, 80 = big, 40 = medium, 20 = small, 10 = very small
 delay_time = 20 # 0 = instant, 10 = fast, 20 = normal, 30 = slow, 40 = very slow
@@ -106,7 +107,6 @@ def mark_circle(marked_pos):
                         arr_size = circle_val[index][i]
                         pygame.draw.circle(screen, (20, 20, 20), pos, 4)
                         refresh()
-
                     elif index == 1:
                         pygame.draw.circle(screen, (192, 192, 192), circle_pos[1][circle_val[1].index(delay_time)], 7)
                         delay_time = circle_val[index][i]
@@ -115,7 +115,6 @@ def mark_circle(marked_pos):
                         pygame.draw.circle(screen, (192, 192, 192), circle_pos[2][circle_val[2].index(algorithm)], 7)
                         algorithm = circle_val[index][i]
                         pygame.draw.circle(screen, (20, 20, 20), pos, 4)
-                        
     pygame.display.update()
 
 def draw_buttons(mouse_pos = (0, 0)):
@@ -159,6 +158,8 @@ def sort():
         bubblesort(arr)
     elif algorithm == 1:
         mergesort(arr, 0, arr_size - 1)
+    elif algorithm == 2:
+        quicksort(arr, 0, arr_size - 1)
     else:
         pass
     draw_bars(arr)
@@ -184,15 +185,16 @@ def bubblesort(arr:list):
         draw_bars(arr)
 
 def mergesort(arr : list, left, right):
-    if left < right:
-        mid = (left + right) // 2
-        mergesort(arr, left, mid)
-        mergesort(arr, mid + 1, right)
-        merge(arr, left, mid, right)
+    if left >= right:
+        return
+    mid = (left + right) // 2
+    mergesort(arr, left, mid)
+    mergesort(arr, mid + 1, right)
+    merge(arr, left, mid, right)
 
 def merge(arr : list, l, m, r):
     for i in range(l, r + 1):
-        color_index[i] = HIGHLIGHTED_BAR
+        color_index[i] = WORKING_PORTION
     draw_bars(arr)
 
     l_temp = arr[l : m + 1]
@@ -227,6 +229,39 @@ def merge(arr : list, l, m, r):
         color_index[k - 1] = COMPLETED_BAR
         pygame.time.delay(delay_time)
         draw_bars(arr)
+
+def quicksort(arr : list, left, right):
+    if left >= right:
+        return
+    for i in range(left, right):
+        color_index[i] = WORKING_PORTION
+
+    pivot = arr[right]
+    color_index[right] = HIGHLIGHTED_BAR
+    draw_bars(arr)
+
+    i = left
+    for j in range(left, right):
+        color_index[j] = HIGHLIGHTED_BAR
+        draw_bars(arr)
+        pygame.time.delay(delay_time)
+        color_index[j] = WORKING_PORTION
+        if arr[j] < pivot:
+            arr[i], arr[j] = arr[j], arr[i]
+            color_index[i] = COMPLETED_BAR
+            draw_bars(arr)
+            pygame.time.delay(delay_time)
+            i += 1
+
+    arr[i], arr[right] = arr[right], arr[i]
+    color_index[i] = COMPLETED_BAR
+
+    for t in range(i + 1, right + 1):
+        if color_index[t] != HIGHLIGHTED_BAR:
+            color_index[t] = BAR
+    draw_bars(arr)
+    quicksort(arr, left, i - 1)
+    quicksort(arr, i + 1, right)
 
 draw_bars(arr)
 draw_circles()
