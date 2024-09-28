@@ -160,6 +160,8 @@ def sort():
         mergesort(arr, 0, arr_size - 1)
     elif algorithm == 2:
         quicksort(arr, 0, arr_size - 1)
+    elif algorithm == 3:
+        selectionsort(arr)
     else:
         pass
     draw_bars(arr)
@@ -173,7 +175,7 @@ def bubblesort(arr:list):
             color_index[j] = HIGHLIGHTED_BAR
             color_index[j + 1] = HIGHLIGHTED_BAR
             
-            pygame.event.get()
+            pygame.event.pump()
             draw_bars(arr)
 
             pygame.time.delay(delay_time)
@@ -181,7 +183,7 @@ def bubblesort(arr:list):
             color_index[j] = BAR
             color_index[j + 1] = BAR
         color_index[i] = COMPLETED_BAR
-        pygame.event.get()
+        pygame.event.pump()
         draw_bars(arr)
 
 def mergesort(arr : list, left, right):
@@ -196,6 +198,7 @@ def merge(arr : list, l, m, r):
     for i in range(l, r + 1):
         color_index[i] = WORKING_PORTION
     draw_bars(arr)
+    pygame.event.pump()
 
     l_temp = arr[l : m + 1]
     r_temp = arr[m + 1 : r + 1]
@@ -214,6 +217,7 @@ def merge(arr : list, l, m, r):
         color_index[k - 1] = COMPLETED_BAR
         pygame.time.delay(delay_time)
         draw_bars(arr)
+        pygame.event.pump()
 
     while(i < len(l_temp)):
         arr[k] = l_temp[i]
@@ -222,6 +226,7 @@ def merge(arr : list, l, m, r):
         color_index[k - 1] = COMPLETED_BAR
         pygame.time.delay(delay_time)
         draw_bars(arr)
+        pygame.event.pump()
     while(j < len(r_temp)):
         arr[k] = r_temp[j]
         j += 1
@@ -229,27 +234,34 @@ def merge(arr : list, l, m, r):
         color_index[k - 1] = COMPLETED_BAR
         pygame.time.delay(delay_time)
         draw_bars(arr)
+        pygame.event.pump()
 
 def quicksort(arr : list, left, right):
     if left >= right:
+        if left == right:
+            color_index[left] = COMPLETED_BAR
         return
+        
     for i in range(left, right):
         color_index[i] = WORKING_PORTION
 
     pivot = arr[right]
     color_index[right] = HIGHLIGHTED_BAR
     draw_bars(arr)
+    pygame.event.pump()
 
     i = left
     for j in range(left, right):
         color_index[j] = HIGHLIGHTED_BAR
         draw_bars(arr)
+        pygame.event.pump()
         pygame.time.delay(delay_time)
         color_index[j] = WORKING_PORTION
         if arr[j] < pivot:
             arr[i], arr[j] = arr[j], arr[i]
             color_index[i] = COMPLETED_BAR
             draw_bars(arr)
+            pygame.event.pump()
             pygame.time.delay(delay_time)
             i += 1
 
@@ -257,11 +269,38 @@ def quicksort(arr : list, left, right):
     color_index[i] = COMPLETED_BAR
 
     for t in range(i + 1, right + 1):
-        if color_index[t] != HIGHLIGHTED_BAR:
-            color_index[t] = BAR
+        color_index[t] = BAR
     draw_bars(arr)
+    pygame.event.pump()
     quicksort(arr, left, i - 1)
     quicksort(arr, i + 1, right)
+
+def selectionsort(arr : list):
+    for i in range(arr_size):
+        index_minimum = i
+        color_index[index_minimum] = HIGHLIGHTED_BAR
+        for j in range(i + 1, arr_size):
+            color_index[j] = HIGHLIGHTED_BAR
+            pygame.time.delay(delay_time)
+            draw_bars(arr)
+            pygame.event.pump()
+            color_index[j] = BAR
+
+            if arr[j] < arr[index_minimum]:
+                color_index[index_minimum] = BAR
+
+                index_minimum = j
+
+                color_index[index_minimum] = HIGHLIGHTED_BAR
+                pygame.time.delay(delay_time)
+                draw_bars(arr)
+                pygame.event.pump()
+
+        arr[i], arr[index_minimum] = arr[index_minimum], arr[i]
+        color_index[index_minimum] = BAR
+        color_index[i] = COMPLETED_BAR
+        draw_bars(arr)
+        pygame.event.pump()
 
 draw_bars(arr)
 draw_circles()
