@@ -162,8 +162,8 @@ def sort():
         quicksort(arr, 0, arr_size - 1)
     elif algorithm == 3:
         selectionsort(arr)
-    else:
-        pass
+    elif algorithm == 4:
+        heapsort(arr)
     draw_bars(arr)
 
 def bubblesort(arr:list):
@@ -301,6 +301,41 @@ def selectionsort(arr : list):
         color_index[i] = COMPLETED_BAR
         draw_bars(arr)
         pygame.event.pump()
+
+def heapify(arr, n, i):
+    l, r = 2 * i + 1, 2 * i + 2
+    largest = i
+    if l < n and arr[l] > arr[largest]:
+        largest = l
+    if r < n and arr[r] > arr[largest]:
+        largest = r
+
+    if largest != i:
+        arr[largest], arr[i] = arr[i], arr[largest]
+        heapify(arr, n, largest)
+
+def heapsort(arr : list):
+    for i in range(len(arr) // 2, -1, -1):
+        heapify(arr, len(arr), i)
+        draw_bars(arr)
+        pygame.event.pump()
+        pygame.time.delay(delay_time)
+    
+    for n in range(len(arr) - 1, 0, -1):
+        arr[0], arr[n] = arr[n], arr[0]
+        color_index[n] = COMPLETED_BAR
+        color_index[0] = HIGHLIGHTED_BAR
+        draw_bars(arr)
+        pygame.event.pump()
+        pygame.time.delay(delay_time)
+
+        heapify(arr, n, 0)
+
+        draw_bars(arr)
+        pygame.event.pump()
+        pygame.time.delay(delay_time)
+    color_index[0] = COMPLETED_BAR
+    draw_bars(arr)
 
 draw_bars(arr)
 draw_circles()
