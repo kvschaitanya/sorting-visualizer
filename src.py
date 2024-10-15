@@ -1,26 +1,33 @@
 import pygame
 import random
 
+# Initialisation
 pygame.init()
 pygame.font.init()
 
+# Font settings
 calibri18 = pygame.font.SysFont('calibri', 18, True)
 calibri18.set_underline(True)
 calibri16 = pygame.font.SysFont('calibri', 16, True)
 impact = pygame.font.SysFont('impact', 30)
 
+# Color Constants
 BACKGROUND = [37, 37, 37]
 BAR = [0, 133, 138]
 HIGHLIGHTED_BAR = [105, 48, 195]
 COMPLETED_BAR = [57, 255, 20]
 WORKING_PORTION = [100, 223, 228]
 
+# Sorting visualizer settings
 arr_size = 40 # default, 100 = huge, 80 = big, 40 = medium, 20 = small, 10 = very small
 delay_time = 20 # 0 = instant, 10 = fast, 20 = normal, 30 = slow, 40 = very slow
 algorithm = 0 # 0 = Bubble Sort, 1 = Selection Sort, 2 = Quick Sort, 3 = Merge Sort, 4 = Heap Sort
 
+# Bar color index initialization
 color_index = [BAR for _ in range(arr_size)]
 line_width = (1200 - (arr_size - 1) * 5 - 5) // arr_size
+
+# Circle positions for UI controls
 circle_pos = (((20, 540),
                (20, 565), 
                (20, 590), 
@@ -39,20 +46,24 @@ circle_pos = (((20, 540),
                (380, 615),
                (380, 640)))
 
+# Circle values for UI controls
 circle_val = ((100, 80, 40, 20, 10), 
               (0, 10, 20, 30, 40), 
               (0, 1, 2, 3, 4))
 
-start_rect = pygame.Rect(620, 550, 180, 60)
-refresh_rect = pygame.Rect(900, 550, 200, 60)
+start_rect = pygame.Rect(620, 550, 180, 60)     # Start button
+refresh_rect = pygame.Rect(900, 550, 200, 60)   # Refresh button
 
+# Set up the screen
 screen = pygame.display.set_mode((1200, 650))
 pygame.display.set_caption('Sorting Algorithm Visualizer')
 screen.fill(BACKGROUND)
 pygame.display.flip()
 
+# Generate a random array to sort
 arr = [random.randint(10, 500) for _ in range(arr_size)]
 
+# Function to draw the bars representing the array
 def draw_bars(arr:list):
     screen.fill(BACKGROUND, (0, 0, 1200, 500))
     x = 2
@@ -63,6 +74,7 @@ def draw_bars(arr:list):
         x += line_width + 5
     pygame.display.update((0, 0, 1200, 500))
 
+# Function to draw UI circles and labels
 def draw_circles():
     for index in range(3):
         for pos in circle_pos[index]:
@@ -96,6 +108,7 @@ def draw_circles():
 
     pygame.display.update()
 
+# Function to mark circles based on user interaction
 def mark_circle(marked_pos):
     global arr_size, delay_time, algorithm
     if marked_pos:
@@ -117,6 +130,7 @@ def mark_circle(marked_pos):
                         pygame.draw.circle(screen, (20, 20, 20), pos, 4)
     pygame.display.update()
 
+# Function to draw buttons and their hover effects
 def draw_buttons(mouse_pos = (0, 0)):
     if start_rect.collidepoint(mouse_pos):
         pygame.draw.rect(screen, (226, 62, 87), start_rect, border_radius = 4)
@@ -134,6 +148,7 @@ def draw_buttons(mouse_pos = (0, 0)):
 
     pygame.display.update([(620, 550, 180, 110), (900, 550, 200, 110)])
 
+# Check for mouse clicks on the start and refresh buttons
 def push_buttons(mouse_pos):
     if start_rect.collidepoint(mouse_pos):
         pygame.draw.rect(screen, (150, 30, 50), start_rect, border_radius = 4)
@@ -146,6 +161,7 @@ def push_buttons(mouse_pos):
         pygame.display.update(refresh_rect)
         refresh()
 
+# Reset the array with new random values and update visual properties
 def refresh():
     global color_index, arr, line_width, arr_size
     arr = [random.randint(10, 500) for _ in range(arr_size)]
@@ -153,6 +169,7 @@ def refresh():
     color_index = [BAR for _ in range(arr_size)]
     draw_bars(arr)
 
+# Execute the selected sorting algorithm on the array
 def sort():
     if algorithm == 0:
         bubblesort(arr)
@@ -337,23 +354,27 @@ def heapsort(arr : list):
     color_index[0] = COMPLETED_BAR
     draw_bars(arr)
 
+# Initial drawing of the bars, circles, and buttons
 draw_bars(arr)
 draw_circles()
 draw_buttons()
 
+# Main loop to handle events and user interactions
 running = True
 while running:
     for event in pygame.event.get():
         if event.type == pygame.WINDOWCLOSE:
-            running = False
+            running = False                         # Exit the program when the window is closed
         elif event.type == pygame.MOUSEMOTION:
-            draw_buttons(event.dict.get('pos'))
+            draw_buttons(event.dict.get('pos'))     # Update button visuals on mouse movement
         elif event.type == pygame.KEYDOWN:
+            # Trigger sort or refresh based on key presses
             if event.dict['key'] == pygame.K_s:
                 sort()
             elif event.dict['key'] == pygame.K_r:
                 refresh()
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            push_buttons(event.dict['pos'])
-            mark_circle(event.dict['pos'])
+            push_buttons(event.dict['pos'])         # Handle button clicks
+            mark_circle(event.dict['pos'])          # Mark the circle at the mouse position
+
 pygame.quit()
