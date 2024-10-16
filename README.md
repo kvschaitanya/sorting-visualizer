@@ -11,3 +11,10 @@ This project is a sorting algorithm visualizer built using Python and Pygame. It
   - Quick Sort
   - Merge Sort
   - Heap Sort
+
+## Algorithm Visualizations
+- Bubble Sort<br> ![](https://github.com/kvschaitanya/sorting-visualizer/blob/main/gifs/bubblesort.gif)<br>
+- Selection Sort<br> ![](https://github.com/kvschaitanya/sorting-visualizer/blob/main/gifs/selectionsort.gif) <br>
+- Quick Sort<br> ![](https://github.com/kvschaitanya/sorting-visualizer/blob/main/gifs/quicksort.gif) <br>
+- Merge Sort<br> ![](https://github.com/kvschaitanya/sorting-visualizer/blob/main/gifs/mergesort.gif) <br>
+- Heap Sort<br> ![](https://github.com/kvschaitanya/sorting-visualizer/blob/main/gifs/heapsort.gif)
